@@ -11,7 +11,7 @@ import java.util.Random;
 
 public class GA {
 
-    private static final double P = Math.PI;           //pi sayısı
+    private final double P = Math.PI;           //pi sayısı
     private final double E = Math.E;            // e sayısı
     private final long SEED = 111111;           //rastgelelik için seed sayısı
     private final int MAX_ITERATION = 200;      //algoritmanın calısma sayısı
