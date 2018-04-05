@@ -8,25 +8,27 @@ import jdk.nashorn.internal.runtime.arrays.ArrayData;
 
 public class GA {
 
-    private static long SEED = 654321;           //rastgelelik için seed sayısı
-    private static int MAX_ITERATION = 200;      //algoritmanın calısma sayısı
+    private static final double P = Math.PI;           //pi sayısı
+    private final double E = Math.E;            // e sayısı
+    private final long SEED = 654321;           //rastgelelik için seed sayısı
+    private final int MAX_ITERATION = 200;      //algoritmanın calısma sayısı
     private final int PROBLEM = 1;              //işlem yapılacak problem no
-    private static final double P = Math.PI;
-    private static final double E = Math.E;
-    private double GAMA = 1.1; //gama sabiti
+    private final int p_size = 10;              // parents sayısı
+    private final int c_size = 30;              // childs sayısı
+    private double GAMA = 1.1;                  //gama sabiti
     
-    private ArrayList<Kromozom> p;  //parents olarak
-    private static ArrayList<Kromozom> c;  //child olarak
-    private static Random rand;
-    
-    private static int p_size = 10; //m = 10 # parents
-    private static int c_size = 30; //l = 30 # childs
-
+    private ArrayList<Kromozom> p;              //parents olarak
+    private ArrayList<Kromozom> c;              //child olarak
+    private Random rand;                        //rastgele üretilecek
         
     public static void main(String[] args) {
     GA ga = new GA();
     ga.initialize();
     ga.run();
+    
+    System.out.println("problem: 1 "+ ga.fitnessValue(1, -0.0898, 0.7126)); //=-1.316(-0.0898, 0.7126)
+    System.out.println("problem: 2 "+ ga.fitnessValue(2, -P, 12.275));  // =0.397887(-π , 12.275), (π , 2.275), (9.42478, 2.475)
+    System.out.println("problem: 3 "+ ga.fitnessValue(3, 0.0 ,0.0)); // (0.0, 0.0)=0.0
     }   
     
     private void run(){
@@ -38,7 +40,7 @@ public class GA {
             int k=0;        //yeni kromozom indeksi
             double SR=0.0;  //Success Rate
             
-            for(int i=0;i<p_size;i++){
+            for(int i=0;i<p_size;i++){      //parent üzerinden child üretimi
                 for(int j=0; j<(c_size/p_size) ;j++){
                     double moving_x = rand.nextGaussian()*GAMA;
                     double moving_y = rand.nextGaussian()*GAMA;
@@ -48,10 +50,9 @@ public class GA {
                     if(c.get(k).getFitness() < p.get(i).getFitness()){
                         SR = SR + 1.0;
                     }
-                    k++;
+                    k++;                    //c_size'a ulaşacak
                 }
-            }
-            
+            }            
             if(SR/c_size > 0.2)            // mutasyon
                 GAMA = GAMA*( 1/0.85);
                 else
@@ -110,25 +111,12 @@ public class GA {
         return (high-low)*rand.nextDouble()+low;
     }
     
-    private double fitness1(double x,double y){
-        return (4-(2.1*x*x)+Math.pow(x,4)/3)*x*x + (x*y) + (-4+4*y*y)*y*y;
-    }
-    
-    private double fitness2( double x, double y){
-        return Math.abs(x) +Math.abs(y)
-                * Math.pow(E, -(Math.sin(x*x)+Math.sin(y*y)) );
-    }
-    
-    private double fitness3( double x, double y){
-        return 0.0;
-    }
-    
     private double fitnessValue(int _problem, double x, double y ){
         switch (_problem){
-            case 1 : return (4-(2.1*x*x)+Math.pow(x,4)/3)*x*x + (x*y) + (-4+4*y*y)*y*y;
-            case 2 : return Math.abs(x) +Math.abs(y)
-                * Math.pow(E, -(Math.sin(x*x)+Math.sin(y*y)) );
-            case 3: return 0.0;
+            case 1 : return (4-(2.1*x*x)+(x*x*x*x)/3)*x*x + (x*y) + (-4+4*y*y)*y*y;
+            case 2 : return Math.pow((y - (5.1/(4*P*P))*x*x + (5*x)/P - 6), 2)
+                    + 10*(1 - 1/(8*P))*Math.cos(x) + 10;
+            case 3: return 1 + (1/200)*(x*x + y*y) - Math.cos(x)*(Math.cos(y/Math.sqrt(2)));
             default: return 0.0;
         }       
     }
