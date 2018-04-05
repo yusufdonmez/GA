@@ -1,8 +1,11 @@
 package yusuf.ga;
 
+import java.io.BufferedWriter;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Random;
-import jdk.nashorn.internal.runtime.arrays.ArrayData;
 
 /* @author yusuf */
 
@@ -10,9 +13,9 @@ public class GA {
 
     private static final double P = Math.PI;           //pi sayısı
     private final double E = Math.E;            // e sayısı
-    private final long SEED = 654321;           //rastgelelik için seed sayısı
+    private final long SEED = 111111;           //rastgelelik için seed sayısı
     private final int MAX_ITERATION = 200;      //algoritmanın calısma sayısı
-    private final int PROBLEM = 1;              //işlem yapılacak problem no
+    private final int PROBLEM = 3;              //işlem yapılacak problem no
     private final int p_size = 10;              // parents sayısı
     private final int c_size = 30;              // childs sayısı
     private double GAMA = 1.1;                  //gama sabiti
@@ -26,15 +29,15 @@ public class GA {
     ga.initialize();
     ga.run();
     
-    System.out.println("problem: 1 "+ ga.fitnessValue(1, -0.0898, 0.7126)); //=-1.316(-0.0898, 0.7126)
-    System.out.println("problem: 2 "+ ga.fitnessValue(2, -P, 12.275));  // =0.397887(-π , 12.275), (π , 2.275), (9.42478, 2.475)
-    System.out.println("problem: 3 "+ ga.fitnessValue(3, 0.0 ,0.0)); // (0.0, 0.0)=0.0
+//   System.out.println("problem: 1 "+ ga.fitnessValue(1, -0.0898, 0.7126)); //=-1.316(-0.0898, 0.7126)
+//    System.out.println("problem: 2 "+ ga.fitnessValue(2, -P, 12.275));  // =0.397887(-π , 12.275), (π , 2.275), (9.42478, 2.475)
+//    System.out.println("problem: 3 "+ ga.fitnessValue(3, 0.0 ,0.0)); // (0.0, 0.0)=0.0
     }   
     
     private void run(){
         rand = new Random();
         rand.setSeed(SEED);
-        
+
         int t=0;
         while(t<MAX_ITERATION){
             int k=0;        //yeni kromozom indeksi
@@ -52,28 +55,40 @@ public class GA {
                     }
                     k++;                    //c_size'a ulaşacak
                 }
-            }            
+            }
             if(SR/c_size > 0.2)            // mutasyon
                 GAMA = GAMA*( 1/0.85);
                 else
                 GAMA = GAMA*( 0.85 );
-            chooseKromozom();               //Kromozom seçimi
+            chooseKromozom(t);               //Kromozom seçimi
             t++;                            // Bir iterasyon sonu
-        }
+        }                
     }
     
-    private void chooseKromozom(){
-        
+    private void chooseKromozom(int index){
         for(int i=0;i<p_size;i++){
             for(int j=0;j<c_size;j++){
                 if(c.get(j).getFitness() < p.get(i).getFitness()){
                     p.get(i).setFitness( c.get(j).getFitness());
                     p.get(i).setX(c.get(j).getX());
                     p.get(i).setY(c.get(j).getY());
+                    c.get(j).setFitness(999999.999);
                 } else
                     p.get(i).setFitness( p.get(i).getFitness());            
             }
         }
+        double best = 999999.0;
+        for (int i = 0; i < p_size; i++) {
+            if (p.get(i).getFitness() < best )
+                best = p.get(i).getFitness();
+        }
+        PrintWriter out = null;
+        try {
+            out = new PrintWriter(new BufferedWriter(new FileWriter("./test/fitness.txt", true)));
+            out.println(index+"\t"+Math.round(best*10000.0)/10000.0);
+        }catch (IOException e) {           System.err.println(e);            }
+         finally{            if(out != null){            out.close();            }        }
+        System.out.println("now best is : "+best);
     }
     
     private void initialize(){       
